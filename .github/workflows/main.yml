@@ -11,10 +11,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3  # Ensure we are using the latest version
+        uses: actions/checkout@v4  # Updated to use Node.js 20 compatible version
 
       - name: Set up Python
-        uses: actions/setup-python@v4  # Ensure we are using the latest version
+        uses: actions/setup-python@v5  # Updated to use Node.js 20 compatible version
         with:
           python-version: '3.12'
 
@@ -28,3 +28,7 @@ jobs:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
         run: python discord_bot.py
+
+branding:
+  color: 'blue'
+  icon: 'message-circle'
