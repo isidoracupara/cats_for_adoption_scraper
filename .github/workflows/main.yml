@@ -28,7 +28,3 @@ jobs:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
         run: python discord_bot.py
-
-branding:
-  color: 'blue'
-  icon: 'message-circle'
