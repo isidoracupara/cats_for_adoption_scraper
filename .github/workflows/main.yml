@@ -3,7 +3,7 @@ name: Run Discord Bot
 on:
   schedule:
     - cron: '*/5 * * * *'  # Runs every 5 minutes
-  workflow_dispatch:
+  workflow_dispatch:  # This allows manual triggering of the workflow
 
 jobs:
   run-bot:
@@ -16,7 +16,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.8
+          python-version: '3.12'
 
       - name: Install dependencies
         run: |
