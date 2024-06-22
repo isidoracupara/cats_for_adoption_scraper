@@ -2,6 +2,7 @@ import aiohttp
 from bs4 import BeautifulSoup
 import asyncio
 import json
+import os
 
 async def fetch(session, url):
     async with session.get(url) as response:
@@ -20,7 +21,7 @@ async def scrape_breeds(url):
                 wire_snapshot = snapshot_div["wire:snapshot"]
                 data = json.loads(wire_snapshot)
                 raw_breeds = data["data"]["breeds"][0]
-                breeds = [breed.replace(" ", "_").lower() for breed in raw_breeds]
+                breeds = [breed.strip().replace(" ", "-").lower() for breed in raw_breeds]
         except Exception as e:
             print(f"Error parsing breeds: {e}")
 
@@ -31,9 +32,9 @@ async def scrape_website(url):
         html = await fetch(session, url)
         soup = BeautifulSoup(html, 'html.parser')
 
-        titles = [item.text for item in soup.select('.some-css-selector')]
+        hrefs = [a['href'] for a in soup.find_all('a', href=True) if a['href'].startswith('https://www.adopteereendier.be/katten/')]
 
-        return titles
+        return hrefs
 
 async def scrape_multiple_websites(urls):
     tasks = []
@@ -42,27 +43,54 @@ async def scrape_multiple_websites(urls):
             tasks.append(fetch(session, url))
         pages_content = await asyncio.gather(*tasks)
 
-    results = []
+    hrefs = []
     for html in pages_content:
         soup = BeautifulSoup(html, 'html.parser')
-        titles = [item.text for item in soup.select('.some-css-selector')]
-        results.append(titles)
+        hrefs.extend([a['href'] for a in soup.find_all('a', href=True) if a['href'].startswith('https://www.adopteereendier.be/katten/')])
 
-    return results
+    return hrefs
 
-async def get_breeds_and_scrape(base_url, exclude_breeds):
-    all_breeds = await scrape_breeds(base_url + 'europese-korthaar')
+async def get_breeds_and_scrape(base_url, filters):
+    all_breeds = await scrape_breeds(base_url + '?ras=europese-korthaar')
     print(f"All breeds found: {all_breeds}")  # Debugging output
+
+    exclude_breeds = filters.get('exclude_breeds', [])
     breeds_to_scrape = [breed for breed in all_breeds if breed not in exclude_breeds]
 
-    urls = [base_url + breed for breed in breeds_to_scrape]
-    results = await scrape_multiple_websites(urls)
+    urls = [build_url(base_url, {**filters, 'ras': breed}) for breed in breeds_to_scrape]
+    hrefs = await scrape_multiple_websites(urls)
 
-    return results
+    # Save results as a text file
+    save_hrefs_as_text(hrefs)
+
+    return hrefs
+
+def build_url(base_url, filters):
+    filter_strings = [f"{key}={value}" for key, value in filters.items() if key != 'exclude_breeds']
+    return base_url + "?" + "&".join(filter_strings)
+
+def save_hrefs_as_text(hrefs):
+    if not os.path.exists('scraped_results'):
+        os.makedirs('scraped_results')
+
+    with open('scraped_results/hrefs.txt', 'w', encoding='utf-8') as file:
+        for href in hrefs:
+            file.write(f"{href}\n")
+
+# Default filters
+DEFAULT_FILTERS = {
+    'exclude_breeds': ['europese-korthaar', 'kruising-raskat', 'huiskat-langhaar', 'huiskat-korthaar'],
+    'behavior_other_animals': 'andere_katten',
+    'behavior_children': '6',
+    'region': 'Vlaams-Brabant,Antwerpen',
+    'type': 'knuffelkat,binnenkat'
+}
 
 if __name__ == "__main__":
-    base_url = 'https://www.adopteereendier.be/katten?ras='
-    exclude_breeds = ['europese-korthaar']
+    base_url = 'https://www.adopteereendier.be/katten'
 
-    result = asyncio.run(get_breeds_and_scrape(base_url, exclude_breeds))
-    print(result)
+    filters = DEFAULT_FILTERS
+
+    url_with_filters = build_url(base_url, filters)
+    result = asyncio.run(get_breeds_and_scrape(url_with_filters, filters))
+    print("Scraped hrefs saved as a text file.")
