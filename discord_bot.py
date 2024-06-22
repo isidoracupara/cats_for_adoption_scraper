@@ -9,8 +9,14 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 
-TOKEN = os.getenv('DISCORD_BOT_TOKEN')
-CHANNEL_ID = int(os.getenv('CHANNEL_ID'))
+DISCORD_BOT_TOKEN = os.getenv('DISCORD_BOT_TOKEN')
+CHANNEL_ID = os.getenv('CHANNEL_ID')
+
+if not DISCORD_BOT_TOKEN or not CHANNEL_ID:
+    raise ValueError("Environment variables DISCORD_BOT_TOKEN and CHANNEL_ID must be set")
+
+CHANNEL_ID = int(CHANNEL_ID)
+
 
 intents = discord.Intents.default()
 client = discord.Client(intents=intents)
