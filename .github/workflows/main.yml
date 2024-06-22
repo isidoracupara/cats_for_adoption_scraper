@@ -11,10 +11,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4  # Use the latest version to ensure compatibility with Node.js 20
+        uses: actions/checkout@v4  # Updated to use Node.js 20 compatible version
 
       - name: Set up Python
-        uses: actions/setup-python@v4  # Use the latest version to ensure compatibility with Node.js 20
+        uses: actions/setup-python@v5  # Updated to use Node.js 20 compatible version
         with:
           python-version: '3.12'
 
@@ -23,10 +23,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Check environment variables  # Debug step to check environment variables
+      - name: Check environment variables
         run: |
-          echo "DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN}"
-          echo "CHANNEL_ID=${CHANNEL_ID}"
+          echo "DISCORD_BOT_TOKEN: $DISCORD_BOT_TOKEN"
+          echo "CHANNEL_ID: $CHANNEL_ID"
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
