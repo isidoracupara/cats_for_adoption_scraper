@@ -1,32 +1,29 @@
-name: Run Discord Bot
+name: Check for New Cats
 
 on:
   schedule:
-    - cron: '*/15 * * * *'  # Runs every 5 minutes
-  workflow_dispatch:  # Allows manual triggering of the workflow
+    - cron: '*/15 * * * *'  # Run every 15 minutes
+  workflow_dispatch:
 
 jobs:
-  run-bot:
+  check_new_cats:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4  # Updated to use Node.js 20 compatible version
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-      - name: Set up Python
-        uses: actions/setup-python@v5  # Updated to use Node.js 20 compatible version
-        with:
-          python-version: '3.12'
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
 
-        env:
-          WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
-
-      - name: Run bot
-        env:
-          WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
-        run: python discord_webhook.py
+    - name: Run the script
+      env:
+        WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
+      run: python script.py

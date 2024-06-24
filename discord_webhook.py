@@ -40,14 +40,8 @@ async def check_for_new_urls():
 
     save_hrefs_to_file(new_hrefs)
 
-async def scheduler_task():
-    while True:
-        schedule.run_pending()
-        await asyncio.sleep(1)
-
 async def main():
-    schedule.every(15).minutes.do(lambda: asyncio.ensure_future(check_for_new_urls()))
-    await scheduler_task()
+    await check_for_new_urls()
 
 if __name__ == "__main__":
     asyncio.run(main())
