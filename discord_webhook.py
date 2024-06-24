@@ -28,13 +28,12 @@ async def check_for_new_urls():
 
     if new_urls:
         for url in new_urls:
-            message = {
-                f"""
-                ## A new cat that fits your filters has just been put up for adoption!",
-                # {url.split("/")[-1].replace("-", " ").title()}
-                **link**: https://www.adopteereendier.be/katten/84531/billy
-                """
-            }
+            cat_name = url.split("/")[-1].replace("-", " ").title()
+            message = f"""
+## A new cat that fits your filters has just been put up for adoption!
+**{cat_name}**
+**link**: {url}
+"""
             response = requests.post(WEBHOOK_URL, json={"content": message})
             if response.status_code != 204:
                 print(f"Failed to send webhook: {response.status_code}, {response.text}")
@@ -47,7 +46,7 @@ async def scheduler_task():
         await asyncio.sleep(1)
 
 async def main():
-    schedule.every(5).minutes.do(lambda: asyncio.ensure_future(check_for_new_urls()))
+    schedule.every(15).minutes.do(lambda: asyncio.ensure_future(check_for_new_urls()))
     await scheduler_task()
 
 if __name__ == "__main__":
