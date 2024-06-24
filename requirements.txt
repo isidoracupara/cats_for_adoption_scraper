@@ -5,6 +5,8 @@ attrs==23.2.0
 beautifulsoup4==4.12.3
 blinker==1.8.2
 bs4==0.0.2
+certifi==2024.6.2
+charset-normalizer==3.3.2
 click==8.1.7
 discord==2.3.2
 discord.py==2.4.0
@@ -16,7 +18,9 @@ Jinja2==3.1.4
 MarkupSafe==2.1.5
 multidict==6.0.5
 python-dotenv==1.0.1
+requests==2.32.3
 schedule==1.2.2
 soupsieve==2.5
+urllib3==2.2.2
 Werkzeug==3.0.3
 yarl==1.9.4
