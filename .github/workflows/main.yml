@@ -19,19 +19,17 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: '3.x'  # Use the version you need
+        python-version: '3.12'  
 
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Set up git url # fixes fatal: could not read Username for 'https://github.com': No such device or address Error: Process completed with exit code 128.
-      run: git config --global url.https://${{ secrets.MY_PAT }}@github.com/.insteadOf https://github.com/
-
     - name: Run the script
-      env:
-        WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
+      # env:
+      #   WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
+      secrets: inherit
       run: python discord_webhook.py
 
     - name: Commit and push changes
@@ -41,5 +39,8 @@ jobs:
         git add tracked_hrefs.txt
         git commit -m 'Update tracked URLs'
         git push
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # env:
+      #   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      secrets: inherit
+
+
