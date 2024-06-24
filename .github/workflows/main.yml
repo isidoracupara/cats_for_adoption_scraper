@@ -19,7 +19,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: '3.12'  
+        python-version: '3.12'
 
     - name: Install dependencies
       run: |
@@ -27,10 +27,9 @@ jobs:
         pip install -r requirements.txt
 
     - name: Run the script
-      # env:
-      #   WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
-      secrets: inherit
-      run: python discord_webhook.py
+      env:
+        WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
+      run: discord_webhook.py
 
     - name: Commit and push changes
       run: |
@@ -39,8 +38,5 @@ jobs:
         git add tracked_hrefs.txt
         git commit -m 'Update tracked URLs'
         git push
-      # env:
-      #   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      secrets: inherit
-
-
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
