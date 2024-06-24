@@ -20,7 +20,7 @@ async def check_for_new_urls():
     filters = DEFAULT_FILTERS
     url_with_filters = build_url(base_url, filters)
 
-    new_hrefs = await get_breeds_and_scrape(url_with_filters, filters)
+    new_hrefs = await get_breeds_and_scrape(base_url, filters)
     tracked_hrefs = load_hrefs_from_file()
 
     new_urls = set(new_hrefs) - tracked_hrefs

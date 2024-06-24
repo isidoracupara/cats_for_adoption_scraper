@@ -88,6 +88,6 @@ if __name__ == "__main__":
     filters = DEFAULT_FILTERS
 
     url_with_filters = build_url(base_url, filters)
-    result = asyncio.run(get_breeds_and_scrape(url_with_filters, filters))
+    result = asyncio.run(get_breeds_and_scrape(base_url, filters))
     save_hrefs_to_file(result)
     print("Scraped hrefs saved to file.")
