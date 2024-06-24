@@ -1,92 +1,48 @@
-import aiohttp
-from bs4 import BeautifulSoup
-import asyncio
-import json
+import requests
 import os
+import schedule
+import time
+from scraper import get_breeds_and_scrape, build_url, save_hrefs_to_file, load_hrefs_from_file, DEFAULT_FILTERS
+import asyncio
+from dotenv import load_dotenv
 
-async def fetch(session, url):
-    async with session.get(url) as response:
-        return await response.text()
+# Load environment variables from .env file
+load_dotenv()
 
-async def scrape_breeds(url):
-    async with aiohttp.ClientSession() as session:
-        html = await fetch(session, url)
-        soup = BeautifulSoup(html, 'html.parser')
+WEBHOOK_URL = os.getenv('WEBHOOK_URL')
 
-        breeds = []
-        try:
-            snapshot_div = soup.find("div", {"wire:snapshot": True})
-            if snapshot_div:
-                wire_snapshot = snapshot_div["wire:snapshot"]
-                data = json.loads(wire_snapshot)
-                raw_breeds = data["data"]["breeds"][0]
-                breeds = [breed.strip().replace(" ", "-").lower() for breed in raw_breeds]
-        except Exception as e:
-            print(f"Error parsing breeds: {e}")
+# Ensure environment variables are set
+if not WEBHOOK_URL:
+    raise ValueError("Environment variable WEBHOOK_URL must be set")
 
-        return breeds
-
-async def scrape_website(url):
-    async with aiohttp.ClientSession() as session:
-        html = await fetch(session, url)
-        soup = BeautifulSoup(html, 'html.parser')
-
-        hrefs = [a['href'] for a in soup.find_all('a', href=True) if a['href'].startswith('https://www.adopteereendier.be/katten/')]
-
-        return hrefs
-
-async def scrape_multiple_websites(urls):
-    tasks = []
-    async with aiohttp.ClientSession() as session:
-        for url in urls:
-            tasks.append(fetch(session, url))
-        pages_content = await asyncio.gather(*tasks)
-
-    hrefs = []
-    for html in pages_content:
-        soup = BeautifulSoup(html, 'html.parser')
-        hrefs.extend([a['href'] for a in soup.find_all('a', href=True) if a['href'].startswith('https://www.adopteereendier.be/katten/')])
-
-    return hrefs
-
-async def get_breeds_and_scrape(base_url, filters):
-    all_breeds = await scrape_breeds(base_url + '?ras=europese-korthaar')
-    exclude_breeds = filters.get('exclude_breeds', [])
-    breeds_to_scrape = [breed for breed in all_breeds if breed not in exclude_breeds]
-
-    urls = [build_url(base_url, {**filters, 'ras': breed}) for breed in breeds_to_scrape]
-    hrefs = await scrape_multiple_websites(urls)
-
-    return hrefs
-
-def build_url(base_url, filters):
-    filter_strings = [f"{key}={value}" for key, value in filters.items() if key != 'exclude_breeds']
-    return base_url + "?" + "&".join(filter_strings)
-
-def save_hrefs_to_file(hrefs, filename='tracked_hrefs.txt'):
-    with open(filename, 'w', encoding='utf-8') as file:
-        for href in hrefs:
-            file.write(f"{href}\n")
-
-def load_hrefs_from_file(filename='tracked_hrefs.txt'):
-    if not os.path.exists(filename):
-        return set()
-    with open(filename, 'r', encoding='utf-8') as file:
-        return set(line.strip() for line in file)
-
-DEFAULT_FILTERS = {
-    'exclude_breeds': ['europese-korthaar', 'kruising-raskat', 'huiskat-langhaar', 'huiskat-korthaar'],
-    'can_get_along_with': 'andere_katten',
-    'region': 'Vlaams-Brabant,Antwerpen',
-    'type': 'knuffelkat,binnenkat'
-}
-
-if __name__ == "__main__":
+async def check_for_new_urls():
     base_url = 'https://www.adopteereendier.be/katten'
-
     filters = DEFAULT_FILTERS
 
-    url_with_filters = build_url(base_url, filters)
-    result = asyncio.run(get_breeds_and_scrape(base_url, filters))
-    save_hrefs_to_file(result)
-    print("Scraped hrefs saved to file.")
+    new_hrefs = await get_breeds_and_scrape(base_url, filters)
+    tracked_hrefs = load_hrefs_from_file()
+
+    new_urls = set(new_hrefs) - tracked_hrefs
+    removed_urls = tracked_hrefs - set(new_hrefs)
+
+    if new_urls:
+        for url in new_urls:
+            cat_name = url.split("/")[-1].replace("-", " ").title()
+            message = f"""
+✨🐱✨ **A new cat that fits your filters has just been put up for adoption!** ✨🐱✨
+
+Meet **{cat_name}**! 🐾💖
+
+[Click here to view the cat!]({url}) 🐾💖
+"""
+            response = requests.post(WEBHOOK_URL, json={"content": message})
+            if response.status_code != 204:
+                print(f"Failed to send webhook: {response.status_code}, {response.text}")
+
+    save_hrefs_to_file(tracked_hrefs | new_urls)
+
+async def main():
+    await check_for_new_urls()
+
+if __name__ == "__main__":
+    asyncio.run(main())
