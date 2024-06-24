@@ -26,4 +26,4 @@ jobs:
     - name: Run the script
       env:
         WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
-      run: python script.py
+      run: python discord_webhook.py
