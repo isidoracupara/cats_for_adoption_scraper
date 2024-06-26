@@ -2,14 +2,14 @@ name: Check for New Cats
 
 on:
   schedule:
-    - cron: '*/15 * * * *'  # Run every 15 minutes
+    - cron: '*/15 * * * *'  
   workflow_dispatch:
 
 jobs:
   check_new_cats:
     runs-on: ubuntu-latest
 
-    permissions:
+    permissions:  
       contents: write
       pull-requests: write
 
@@ -31,9 +31,9 @@ jobs:
         pip install -r requirements.txt
 
     - name: Run the script
+      run: python discord_webhook.py
       env:
         WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
-      run: discord_webhook.py
 
     - name: Commit and push changes
       run: |
