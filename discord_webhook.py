@@ -30,9 +30,7 @@ async def check_for_new_urls():
             cat_name = url.split("/")[-1].replace("-", " ").title()
             message = f""" \n\n
             ✨🐱✨ **A new cat that fits your filters has just been put up for adoption!** ✨🐱✨
-
             Meet **{cat_name}**! 🐾💖
-
             [Click here to view the cat!]({url}) 🐾💖
             """
             response = requests.post(WEBHOOK_URL, json={"content": message})
