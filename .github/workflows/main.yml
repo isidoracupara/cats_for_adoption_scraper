@@ -1,6 +1,6 @@
 name: Check for New Cats
 
-# ✅ REQUIRED for scheduled workflows that push commits
+# REQUIRED for scheduled workflows that push commits
 permissions:
   contents: write
 
@@ -13,15 +13,14 @@ jobs:
   check_new_cats:
     runs-on: ubuntu-latest
 
-    steps:
-    # ❌ OLD (removed — credentials were not persisted correctly)
-    # - name: Checkout repository
-    #   uses: actions/checkout@v4
-    #   with:
-    #     persist-credentials: false
-    #     token: ${{ secrets.GITHUB_TOKEN }}
+    concurrency:
+      group: check-new-cats
+      cancel-in-progress: true
 
-    # ✅ NEW (let GitHub inject credentials automatically)
+
+    steps:
+
+    # let GitHub inject credentials automatically
     - name: Checkout repository
       uses: actions/checkout@v4
 
@@ -40,22 +39,13 @@ jobs:
       env:
         WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
 
-    # ❌ OLD (failed due to missing auth context + detached HEAD)
-    # - name: Commit and push changes
-    #   run: |
-    #     git config --global user.name 'github-actions[bot]'
-    #     git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-    #     git add tracked_hrefs.txt
-    #     git commit -m 'Update tracked URLs'
-    #     git push
-    #   env:
-    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    # ✅ NEW (explicit, safe, non-interactive push)
     - name: Commit and push changes
       run: |
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
+
+        git fetch origin
+        git rebase origin/${{ github.ref_name }}
 
         git add tracked_hrefs.txt
         git commit -m "Update tracked URLs" || exit 0
