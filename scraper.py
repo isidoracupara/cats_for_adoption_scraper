@@ -50,8 +50,8 @@ async def scrape_multiple_websites(urls):
     return hrefs
 
 async def get_breeds_and_scrape(base_url, filters):
-    all_breeds = await scrape_breeds(base_url + '?ras=europese-korthaar')
-    # all_breeds = await scrape_breeds(base_url)
+    # all_breeds = await scrape_breeds(base_url + '?ras=europese-korthaar')
+    all_breeds = await scrape_breeds(base_url)
     exclude_breeds = filters.get('exclude_breeds', [])
     breeds_to_scrape = [breed for breed in all_breeds if breed not in exclude_breeds]
 
