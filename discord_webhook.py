@@ -1,5 +1,6 @@
 import requests
 import os
+import re
 import schedule
 import time
 from scraper import get_breeds_and_scrape, build_url, save_hrefs_to_file, load_hrefs_from_file, DEFAULT_FILTERS
@@ -27,7 +28,7 @@ async def check_for_new_urls():
 
     if new_urls:
         for url in new_urls:
-            cat_name = url.split("/")[-1].replace("-", " ").title()
+            cat_name = re.sub(r"\d+", "", url.split("/")[-1].replace("-", " ").title())
             message = f""" \n\n
             ✨🐱✨ **A new cat that fits your filters has just been put up for adoption!** ✨🐱✨
             Meet **{cat_name}**! 🐾💖
