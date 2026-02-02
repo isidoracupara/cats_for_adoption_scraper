@@ -38,6 +38,24 @@ async def check_for_new_urls():
             if response.status_code != 204:
                 print(f"Failed to send webhook: {response.status_code}, {response.text}")
 
+
+            message2 = {
+                "content": f"""
+
+            ✨🐱✨ **A new cat that fits your filters has just been put up for adoption!** ✨🐱✨
+            Meet **{cat_name}**! 🐾💖
+            [Click here to view the cat!]({url}) 🐾💖
+            """,
+                "embeds": [
+                    {
+                        "title": f"Meet {cat_name} 🐱",
+                        "url": url,
+                        "description": "Click to view this cat’s adoption page 🐾",
+                    }
+                ]
+            }
+
+
     save_hrefs_to_file(tracked_hrefs | new_urls)
 
 async def main():
