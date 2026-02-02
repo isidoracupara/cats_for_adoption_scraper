@@ -76,7 +76,7 @@ def load_hrefs_from_file(filename='tracked_hrefs.txt'):
         return set(line.strip() for line in file)
 
 DEFAULT_FILTERS = {
-    # 'exclude_breeds': ['europese-korthaar', 'kruising-raskat', 'huiskat-langhaar', 'huiskat-korthaar'],
+    'exclude_breeds': ['europese-korthaar', 'kruising-raskat', 'huiskat-langhaar', 'huiskat-korthaar'],
     'ras': 'sphynx',
     'can_get_along_with': 'andere_katten',
     # 'region': 'Vlaams-Brabant,Antwerpen',
