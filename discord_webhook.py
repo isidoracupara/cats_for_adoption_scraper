@@ -32,7 +32,7 @@ async def check_for_new_urls():
             message = f""" \n\n
             ✨🐱✨ **A new cat that fits your filters has just been put up for adoption!** ✨🐱✨
             Meet **{cat_name}**! 🐾💖
-            [Click here to view the cat!]({url}) 🐾💖
+            {url}
             """
             response = requests.post(WEBHOOK_URL, json={"content": message})
             if response.status_code != 204:
