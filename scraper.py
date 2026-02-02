@@ -50,10 +50,20 @@ async def scrape_multiple_websites(urls):
     return hrefs
 
 async def get_breeds_and_scrape(base_url, filters):
-    all_breeds = await scrape_breeds(base_url + '?ras=europese-korthaar')
-    # all_breeds = await scrape_breeds(base_url)
-    exclude_breeds = filters.get('exclude_breeds', [])
-    breeds_to_scrape = [breed for breed in all_breeds if breed not in exclude_breeds]
+    all_breeds = await scrape_breeds(base_url + "?ras=europese-korthaar")
+
+    exclude_breeds = set(filters.get("exclude_breeds", []))
+    ras = filters.get("ras")
+
+    if isinstance(ras, str):
+        breeds_to_scrape = [ras]
+    elif ras:
+        breeds_to_scrape = ras
+    else:
+        breeds_to_scrape = [
+            breed for breed in all_breeds
+            if breed not in exclude_breeds
+        ]
 
     urls = [build_url(base_url, {**filters, 'ras': breed}) for breed in breeds_to_scrape]
     hrefs = await scrape_multiple_websites(urls)
@@ -77,7 +87,7 @@ def load_hrefs_from_file(filename='tracked_hrefs.txt'):
 
 DEFAULT_FILTERS = {
     'exclude_breeds': ['europese-korthaar', 'kruising-raskat', 'huiskat-langhaar', 'huiskat-korthaar'],
-    'ras': 'sphynx',
+    'ras': ['sphynx'],
     'can_get_along_with': 'andere_katten',
     # 'region': 'Vlaams-Brabant,Antwerpen',
     'type': 'knuffelkat,binnenkat'
