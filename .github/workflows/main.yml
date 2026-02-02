@@ -44,9 +44,17 @@ jobs:
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
 
+        # Stash changes made by the script
+        git stash push -m "bot-changes" || true
+
+        # Sync with remote safely
         git fetch origin
         git rebase origin/${{ github.ref_name }}
 
+        # Re-apply changes
+        git stash pop || true
+
+        # Commit if something changed
         git add tracked_hrefs.txt
         git commit -m "Update tracked URLs" || exit 0
 
