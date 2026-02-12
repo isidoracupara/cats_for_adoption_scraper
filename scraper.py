@@ -87,7 +87,7 @@ def load_hrefs_from_file(filename='tracked_hrefs.txt'):
 
 DEFAULT_FILTERS = {
     'exclude_breeds': ['europese-korthaar', 'kruising-raskat', 'huiskat-langhaar', 'huiskat-korthaar'],
-    'ras': ['sphynx'],
+    # 'ras': ['sphynx'],
     'can_get_along_with': 'andere_katten',
     # 'region': 'Vlaams-Brabant,Antwerpen',
     'type': 'knuffelkat,binnenkat'
